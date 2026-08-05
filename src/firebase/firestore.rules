@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuth() { return request.auth != null; }
+    function isAdmin() {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isOfficer() {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'officer';
+    }
+    function isOwner(uid) { return isAuth() && request.auth.uid == uid; }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Organizations collection
+    match /organizations/{orgId} {
+      allow read: if isAuth();
+      allow create: if isAdmin() || isOfficer();
+      allow update: if isAdmin() || (isOfficer() &&
+        get(/databases/$(database)/documents/organizations/$(orgId)).data.createdBy == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // Members collection
+    match /members/{memberId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAdmin() || isOfficer();
+      allow delete: if isAdmin() || isOfficer();
+    }
+
+    // Events collection
+    match /events/{eventId} {
+      allow read: if isAuth();
+      allow create: if isAdmin() || isOfficer();
+      allow update: if isAdmin() || isOfficer();
+      allow delete: if isAdmin() || isOfficer();
+    }
+
+    // Announcements collection
+    match /announcements/{announcementId} {
+      allow read: if isAuth();
+      allow create: if isAdmin() || isOfficer();
+      allow update: if isAdmin() || isOfficer();
+      allow delete: if isAdmin() || isOfficer();
+    }
+
+    // RSVPs collection
+    match /rsvps/{rsvpId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth() && isOwner(resource.data.userId);
+      allow delete: if isAuth() && isOwner(resource.data.userId);
+    }
+
+    // Activity logs (admin read only)
+    match /activityLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuth();
+      allow update, delete: if false;
+    }
+  }
+}
