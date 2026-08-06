@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -36,7 +36,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <NotificationsProvider>
-          <BrowserRouter>
+          <HashRouter>
             <Toaster
               position="top-right"
               toastOptions={{
@@ -65,7 +65,7 @@ function App() {
               <Route path="/" element={<Landing />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </NotificationsProvider>
       </AuthProvider>
     </ThemeProvider>
