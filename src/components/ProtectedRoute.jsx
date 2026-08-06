@@ -10,8 +10,8 @@ const ProtectedRoute = ({ children, roles }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Wait for profile to load before checking roles
-  if (roles && !userProfile) {
+  // Wait for profile to load before checking roles (skip for demo user)
+  if (roles && currentUser.uid !== 'demo-admin-uid' && !userProfile) {
     return null;
   }
 

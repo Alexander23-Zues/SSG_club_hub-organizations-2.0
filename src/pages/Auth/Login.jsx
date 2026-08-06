@@ -1,17 +1,51 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Shield, Eye, EyeOff, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const inputCls = "w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all";
+
+const DEMO_ACCOUNTS = [
+  {
+    role: 'admin',
+    label: 'SSG Admin',
+    name: 'Demo Admin',
+    email: 'demo.admin@ssgclubhub.edu',
+    description: 'Full access — manage orgs, members, reports',
+    gradient: 'from-red-500 to-rose-600',
+    badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    emoji: '🛡️',
+  },
+  {
+    role: 'officer',
+    label: 'Org Officer',
+    name: 'Clara Mendoza',
+    email: 'demo.officer@ssgclubhub.edu',
+    description: 'Manage CS Society — events, announcements, members',
+    gradient: 'from-blue-500 to-indigo-600',
+    badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    emoji: '📋',
+  },
+  {
+    role: 'student',
+    label: 'Student',
+    name: 'Alice Reyes',
+    email: 'demo.student@ssgclubhub.edu',
+    description: 'Browse orgs, RSVP to events, view announcements',
+    gradient: 'from-emerald-500 to-green-600',
+    badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    emoji: '🎓',
+  },
+];
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [showDemo, setShowDemo] = useState(false);
+  const { login, demoLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
@@ -35,6 +69,12 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDemoLogin = (role) => {
+    demoLogin(role);
+    toast.success(`Logged in as Demo ${role.charAt(0).toUpperCase() + role.slice(1)}`);
+    navigate('/dashboard', { replace: true });
   };
 
   return (
@@ -105,6 +145,40 @@ const Login = () => {
                   Create one free
                 </Link>
               </p>
+
+              {/* Demo accounts toggle */}
+              <button
+                type="button"
+                onClick={() => setShowDemo(s => !s)}
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-sm font-semibold hover:border-blue-400 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-all"
+              >
+                <span>Try a Demo Account</span>
+                {showDemo ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              </button>
+
+              {showDemo && (
+                <div className="mt-3 space-y-2">
+                  {DEMO_ACCOUNTS.map(acc => (
+                    <button
+                      key={acc.role}
+                      type="button"
+                      onClick={() => handleDemoLogin(acc.role)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all text-left group"
+                    >
+                      <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${acc.gradient} flex items-center justify-center text-base flex-shrink-0 shadow-sm`}>
+                        {acc.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-slate-800 dark:text-white">{acc.name}</span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${acc.badge}`}>{acc.label}</span>
+                        </div>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5">{acc.description}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
