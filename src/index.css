@@ -8,16 +8,21 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+html {
   background-color: #f8fafc;
   color: #1e293b;
 }
 
-.dark body {
+html.dark {
   background-color: #0f172a;
   color: #f1f5f9;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: inherit;
+  color: inherit;
 }
 
 /* Scrollbar */
